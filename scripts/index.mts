@@ -33,7 +33,8 @@ async function main() {
 
   const tokenResult = await sdk.fungible.addTokens.submitWaitResult({
     address,
-    collectionId: 65,
+    // @ts-ignore
+    collectionId,
     amount: 30,
     recipient: address,
   })
@@ -43,13 +44,14 @@ async function main() {
     process.exit()
   } else {
     console.log(
-      // amount - empty
+      // amount - undefined
       `The ${tokenResult.parsed?.amount} tokens were created in collection # ${tokenResult.parsed?.collectionId}`
     )
   }
 
   const transferResult = await sdk.collections.transfer.submitWaitResult({
-    collectionId: 65,
+    // @ts-ignore
+    collectionId,
     address, // address instead of from:
     to: substrateMirror,
   })
