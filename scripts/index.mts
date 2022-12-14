@@ -2,6 +2,7 @@ import {Sdk} from '@unique-nft/sdk'
 import {KeyringProvider} from '@unique-nft/accounts/keyring'
 
 const baseUrl = 'https://rest.unique.network/opal/v1'
+// dummy account created only for this test 
 const mnemonic = 'solar float siege poverty catch resource uncle verify kitchen cactus frog skill'
 const substrateMirror = '5DVgiNh1Go8ESa18xEirA4uV3zpra59awPGQjJTmCrqYMNtM'
 
