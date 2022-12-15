@@ -6,6 +6,7 @@ import {
   UniqueFungible,
   CollectionHelpersFactory,
 } from '@unique-nft/solidity-interfaces'
+import {Address} from '@unique-nft/utils/address'
 
 const baseUrl = 'https://rest.unique.network/opal/v1'
 // dummy account created only for this test
@@ -59,20 +60,26 @@ async function main() {
     )
   } */
 
-  const transferResult = await sdk.collections.transfer.submitWaitResult({
-    collectionId,
-    address, // address instead of from:
-    to: substrateMirror,
-  })
-  // owner - empty
-  console.log(
-    `Collection # ${transferResult.parsed?.collectionId} was transferred to the ${transferResult.parsed?.owner} address.`
-  )
-
   const provider = ethers.provider
   const privateKey = process.env.PRIVATE_KEY as string;
 
   const wallet = new ethers.Wallet(privateKey, provider)
+
+  /*
+  await sdk.collections.addAdmin.submitWaitResult({
+    collectionId,
+    address,
+    newAdmin: Address.mirror.ethereumToSubstrate(wallet.address),
+  })
+   */
+  const transferResult = await sdk.collections.transfer.submitWaitResult({
+    collectionId,
+    address, // address instead of from:
+    to: Address.mirror.ethereumToSubstrate(wallet.address),
+  })
+  console.log(
+      `Collection # ${transferResult.parsed?.collectionId} was transferred to the ${transferResult.parsed?.owner} address.`
+  )
 
   const collection = await UniqueFungibleFactory(collectionId, wallet, ethers)
 
