@@ -1,13 +1,9 @@
-# Sample Hardhat Project
+# Sample project to create a fungible collection on Opal
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This project demonstrates a basic use case.
 
 Try running some of the following tasks:
 
 ```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
+yarn hardhat run scripts/index.ts --network opal
 ```
