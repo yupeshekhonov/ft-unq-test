@@ -6,7 +6,6 @@ import {
   UniqueFungible,
   CollectionHelpersFactory,
 } from '@unique-nft/solidity-interfaces'
-import {Address} from '@unique-nft/utils/address'
 
 const baseUrl = 'https://rest.unique.network/opal/v1'
 // dummy account created only for this test
@@ -38,6 +37,9 @@ async function main() {
     console.log(`The collection was created: id = ${collectionResult.parsed?.collectionId}`)
   }
   const collectionId = collectionResult.parsed?.collectionId
+  if (!collectionId) {
+    throw new Error('Invalid collectionId');
+  }
 
   /* const tokenResult = await sdk.fungible.addTokens.submitWaitResult({
     address,
@@ -58,7 +60,6 @@ async function main() {
   } */
 
   const transferResult = await sdk.collections.transfer.submitWaitResult({
-    // @ts-ignore
     collectionId,
     address, // address instead of from:
     to: substrateMirror,
@@ -68,21 +69,20 @@ async function main() {
     `Collection # ${transferResult.parsed?.collectionId} was transferred to the ${transferResult.parsed?.owner} address.`
   )
 
-  // @ts-ignore
-  const collectionAddress = Address.collection.idToAddress(collectionId)
-
   const provider = ethers.provider
-  const privateKey = process.env.PRIVATE_KEY
-  // @ts-ignore
+  const privateKey = process.env.PRIVATE_KEY as string;
+
   const wallet = new ethers.Wallet(privateKey, provider)
 
-  // @ts-ignore
-  const collectionHelpers = await CollectionHelpersFactory(wallet, ethers)
+  const collection = await UniqueFungibleFactory(collectionId, wallet, ethers)
 
-  const collection = await UniqueFungibleFactory(collectionAddress, wallet, ethers)
+  const gasPriceResult = await sdk.stateQuery.execute({endpoint: 'rpc', module:'eth', method: 'gasPrice'});
 
-  const txMintToken = await (await collection.mint(wallet.address, 50)).wait()
-	console.log(txMintToken)
+  const txMintToken = await (await collection.mint(wallet.address, 50, {
+    gasLimit: 10_000_000,
+    gasPrice: gasPriceResult.json,
+  })).wait()
+  console.log('txMintToken', txMintToken)
 }
 
 main().catch((err) => {
