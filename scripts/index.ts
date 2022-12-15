@@ -22,7 +22,8 @@ async function main() {
     baseUrl,
     signer: account,
   })
-
+  
+  // create collection 
   const collectionResult = await sdk.fungible.createCollection.submitWaitResult({
     address,
     name: 'Yuriy Fungible',
@@ -42,36 +43,12 @@ async function main() {
     throw new Error('Invalid collectionId');
   }
 
-  /* const tokenResult = await sdk.fungible.addTokens.submitWaitResult({
-    address,
-    // @ts-ignore
-    collectionId,
-    amount: 30,
-    recipient: address,
-  })
-
-  if (tokenResult.error) {
-    console.log(`Token was not created. Error: ${tokenResult.error}`)
-    process.exit()
-  } else {
-    console.log(
-      // amount - undefined
-      `The ${tokenResult.parsed?.amount} tokens were created in collection # ${tokenResult.parsed?.collectionId}`
-    )
-  } */
-
   const provider = ethers.provider
   const privateKey = process.env.PRIVATE_KEY as string;
 
   const wallet = new ethers.Wallet(privateKey, provider)
 
-  /*
-  await sdk.collections.addAdmin.submitWaitResult({
-    collectionId,
-    address,
-    newAdmin: Address.mirror.ethereumToSubstrate(wallet.address),
-  })
-   */
+  // transfer the collection 
   const transferResult = await sdk.collections.transfer.submitWaitResult({
     collectionId,
     address, // address instead of from:
@@ -80,7 +57,8 @@ async function main() {
   console.log(
       `Collection # ${transferResult.parsed?.collectionId} was transferred to the ${transferResult.parsed?.owner} address.`
   )
-
+  
+  // mint fungible tokens 
   const collection = await UniqueFungibleFactory(collectionId, wallet, ethers)
 
   const gasPriceResult = await sdk.stateQuery.execute({endpoint: 'rpc', module:'eth', method: 'gasPrice'});
@@ -89,7 +67,8 @@ async function main() {
     gasLimit: 10_000_000,
     gasPrice: gasPriceResult.json,
   })).wait()
-  console.log('txMintToken', txMintToken)
+
+  console.log('The tokens were minted. Address: ', txMintToken.logs[0].address)
 }
 
 main().catch((err) => {
